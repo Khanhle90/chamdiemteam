@@ -6,7 +6,7 @@
     <title>Bảng Điều Khiển Quản Lý Chuyến Đi</title>
     <style>
         body { font-family: Arial, sans-serif; background: #eef2f5; margin: 0; padding: 15px; }
-        .container { max-width: 1200px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .container { max-width: 1250px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
         h2 { color: #1a73e8; margin-top: 0; }
         
         .filter-bar { display: flex; gap: 15px; align-items: center; margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 6px; }
@@ -14,7 +14,7 @@
         button.btn-refresh { padding: 10px 20px; background: #1a73e8; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
         button.btn-refresh:hover { background: #1557b0; }
 
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 25px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 25px; }
         .card { background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 15px; text-align: center; }
         .card.highlight { background: #fff8e1; border-color: #ffe082; }
         .card-title { font-size: 13px; color: #666; font-weight: bold; text-transform: uppercase; margin-bottom: 5px; }
@@ -22,12 +22,13 @@
         .card.highlight .card-value { color: #e65100; }
 
         .table-responsive { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 900px; font-size: 14px; }
+        table { width: 100%; border-collapse: collapse; min-width: 1050px; font-size: 14px; }
         th, td { border: 1px solid #e0e0e0; padding: 10px 12px; text-align: left; }
         th { background: #f1f3f4; color: #3c4043; font-weight: bold; }
         tr:hover { background: #f8f9fa; }
         .text-center { text-align: center; }
         .text-right { text-align: right; }
+        .badge-classes { background: #e8f0fe; color: #1967d2; font-weight: bold; padding: 3px 8px; border-radius: 4px; display: inline-block; }
     </style>
 </head>
 <body>
@@ -80,6 +81,7 @@
                     <th>Tên HDV</th>
                     <th>SĐT HDV</th>
                     <th class="text-right">Số GV</th>
+                    <th>Các lớp (Số HS)</th>
                     <th class="text-right">Tổng HS</th>
                     <th class="text-right">Tổng PH</th>
                     <th class="text-right">Trẻ em</th>
@@ -91,15 +93,14 @@
                 </tr>
             </thead>
             <tbody id="tableBody">
-                <tr><td colspan="12" class="text-center">Chưa có dữ liệu</td></tr>
+                <tr><td colspan="13" class="text-center">Chưa có dữ liệu</td></tr>
             </tbody>
         </table>
     </div>
 </div>
 
 <script>
-    // Dán link Web App từ Google Apps Script của bạn vào đây:
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxeHIJx0ObfuFQF8GJZRmCqss0urBmXONRL5FfGthUoulZ1Atn2d7W4paR6g2iN/exec";
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw2dQqebfwAoAZgPazN8u6GuIgnudOaNqWCC7RJetMfSJPRVNo7feUT0yBHW0fnFkQ1/exec";
 
     let rawData = [];
 
@@ -110,13 +111,11 @@
     function fetchSummaryData() {
         document.getElementById('selectChuongTrinh').innerHTML = '<option>Đang đồng bộ dữ liệu từ hệ thống...</option>';
         
-        // Gọi API lấy toàn bộ dữ liệu xe đã nộp
         fetch(GOOGLE_SCRIPT_URL + "?action=getSummary")
             .then(res => res.json())
             .then(data => {
                 rawData = data;
                 
-                // Gom danh sách các chương trình duy nhất
                 const programs = [...new Set(rawData.map(item => item.chuongTrinh).filter(Boolean))];
                 const select = document.getElementById('selectChuongTrinh');
                 select.innerHTML = '';
@@ -144,7 +143,6 @@
         const currentProg = document.getElementById('selectChuongTrinh').value;
         const filtered = rawData.filter(d => d.chuongTrinh === currentProg);
 
-        // 1. Tính toán thẻ thống kê
         let sumXe = filtered.length;
         let sumGv = 0, sumHs = 0, sumPh = 0, sumTe = 0, sumTong = 0;
 
@@ -163,12 +161,11 @@
         document.getElementById('statTe').innerText = sumTe;
         document.getElementById('statTong').innerText = sumTong;
 
-        // 2. Điền bảng chi tiết
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
 
         if (filtered.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="12" class="text-center">Chưa có xe nào nộp báo cáo cho chương trình này</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="13" class="text-center">Chưa có xe nào nộp báo cáo cho chương trình này</td></tr>';
             return;
         }
 
@@ -179,6 +176,7 @@
                 <td>${d.tenHdv}</td>
                 <td><a href="tel:${d.sdtHdv}">${d.sdtHdv}</a></td>
                 <td class="text-right">${d.soGv}</td>
+                <td><span class="badge-classes">${d.chiTietLop || 'Chưa nhập'}</span></td>
                 <td class="text-right">${d.tongHs}</td>
                 <td class="text-right">${d.tongPh}</td>
                 <td class="text-right">${d.tongTe}</td>
