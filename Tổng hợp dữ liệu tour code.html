@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ứng Dụng Tổng Hợp Thông Tin Chuyến Đi</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; }
+        .container { max-width: 800px; background: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin: auto; }
+        h2, h3 { color: #333; border-bottom: 2px solid #007bff; padding-bottom: 8px; margin-top: 25px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; color: #555; }
+        input, select { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; background: #fff; }
+        .class-box { background: #f9f9f9; border: 1px dashed #ccc; padding: 15px; border-radius: 5px; margin-bottom: 15px; }
+        .class-box h4 { margin-top: 0; color: #007bff; }
+        .row { display: flex; gap: 10px; }
+        .col { flex: 1; }
+        button { background: #007bff; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 15px; }
+        button:hover { background: #0056b3; }
+        .lock-notice { background: #e2f0d9; color: #385723; padding: 10px; border-radius: 5px; margin-bottom: 15px; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Nhập Thông Tin Chuyến Đi & Xe</h2>
+    
+    <div id="lockNotice" class="lock-notice">
+        🔒 Hệ thống đã ghi nhận thông tin xe của bạn từ lần nhập trước. Bạn có thể chỉnh sửa dữ liệu bên dưới nếu cần.
+    </div>
+
+    <form id="infoForm" onsubmit="saveData(event)">
+        <h3>Thông Tin Chung & Xe</h3>
+        <div class="form-group">
+            <label>Chương trình:</label>
+            <select id="chuongTrinh" required>
+                <option value="">-- Đang tải danh sách chương trình... --</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label>Số xe:</label>
+            <input type="text" id="soXe" required placeholder="Ví dụ: Xe 01">
+        </div>
+
+        <div class="row">
+            <div class="col form-group">
+                <label>Tên Hướng Dẫn Viên (HDV):</label>
+                <input type="text" id="tenHdv" required placeholder="Họ và tên HDV">
+            </div>
+            <div class="col form-group">
+                <label>SĐT HDV:</label>
+                <input type="tel" id="sdtHdv" required placeholder="Số điện thoại HDV">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col form-group">
+                <label>Biển số xe:</label>
+                <input type="text" id="bienSoXe" required placeholder="Ví dụ: 29B-12345">
+            </div>
+            <div class="col form-group">
+                <label>Lái xe:</label>
+                <input type="text" id="laiXe" required placeholder="Họ và tên lái xe">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col form-group">
+                <label>SĐT lái xe:</label>
+                <input type="tel" id="sdtLaiXe" required placeholder="Số điện thoại lái xe">
+            </div>
+            <div class="col form-group">
+                <label>Số lượng giáo viên:</label>
+                <input type="number" id="soLuongGiaoVien" min="0" required placeholder="0">
+            </div>
+        </div>
+
+        <!-- Lớp số 1 -->
+        <div class="class-box">
+            <h4>Thông tin Lớp số 1</h4>
+            <div class="form-group">
+                <label>Tên lớp số 1:</label>
+                <input type="text" id="tenLop1" placeholder="Ví dụ: 6A1">
+            </div>
+            <div class="row">
+                <div class="col form-group">
+                    <label>Số học sinh:</label>
+                    <input type="number" id="hsLop1" min="0" value="0">
+                </div>
+                <div class="col form-group">
+                    <label>Số phụ huynh:</label>
+                    <input type="number" id="phLop1" min="0" value="0">
+                </div>
+                <div class="col form-group">
+                    <label>Trẻ em đi cùng:</label>
+                    <input type="number" id="teLop1" min="0" value="0">
+                </div>
+            </div>
+        </div>
+
+        <!-- Lớp số 2 -->
+        <div class="class-box">
+            <h4>Thông tin Lớp số 2</h4>
+            <div class="form-group">
+                <label>Tên lớp số 2:</label>
+                <input type="text" id="tenLop2" placeholder="Ví dụ: 6A2">
+            </div>
+            <div class="row">
+                <div class="col form-group">
+                    <label>Số học sinh:</label>
+                    <input type="number" id="hsLop2" min="0" value="0">
+                </div>
+                <div class="col form-group">
+                    <label>Số phụ huynh:</label>
+                    <input type="number" id="phLop2" min="0" value="0">
+                </div>
+                <div class="col form-group">
+                    <label>Trẻ em đi cùng:</label>
+                    <input type="number" id="teLop2" min="0" value="0">
+                </div>
+            </div>
+        </div>
+
+        <!-- Lớp số 3 -->
+        <div class="class-box">
+            <h4>Thông tin Lớp số 3</h4>
+            <div class="form-group">
+                <label>Tên lớp số 3:</label>
+                <input type="text" id="tenLop3" placeholder="Ví dụ: 6A3">
+            </div>
+            <div class="row">
+                <div class="col form-group">
+                    <label>Số học sinh:</label>
+                    <input type="number" id="hsLop3" min="0" value="0">
+                </div>
+                <div class="col form-group">
+                    <label>Số phụ huynh:</label>
+                    <input type="number" id="phLop3" min="0" value="0">
+                </div>
+                <div class="col form-group">
+                    <label>Trẻ em đi cùng:</label>
+                    <input type="number" id="teLop3" min="0" value="0">
+                </div>
+            </div>
+        </div>
+
+        <button type="submit">Gửi Dữ Liệu Về Hệ Thống Tổng Hợp</button>
+    </form>
+</div>
+
+<script>
+    const GOOGLE_SCRIPT_URL = "DÁN_URL_WEB_APP_CỦA_BẠN_VÀO_ĐÂY";
+
+    // Tự động tải danh sách chương trình từ Google Sheet khi mở web
+    window.onload = function() {
+        fetch(GOOGLE_SCRIPT_URL)
+            .then(response => response.json())
+            .then(programs => {
+                const select = document.getElementById('chuongTrinh');
+                select.innerHTML = '<option value="">-- Chọn chương trình --</option>';
+                
+                if (programs.length === 0) {
+                    select.innerHTML = '<option value="">(Chưa có chương trình nào được tạo)</option>';
+                } else {
+                    programs.forEach(prog => {
+                        let opt = document.createElement('option');
+                        opt.value = prog;
+                        opt.textContent = prog;
+                        select.appendChild(opt);
+                    });
+                }
+
+                // Nạp tiếp thông tin xe đã lưu cố định (nếu có)
+                const savedData = localStorage.getItem('tripData_fixedCar');
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    select.value = data.chuongTrinh || '';
+                    document.getElementById('soXe').value = data.soXe || '';
+                    document.getElementById('tenHdv').value = data.tenHdv || '';
+                    document.getElementById('sdtHdv').value = data.sdtHdv || '';
+                    document.getElementById('bienSoXe').value = data.bienSoXe || '';
+                    document.getElementById('laiXe').value = data.laiXe || '';
+                    document.getElementById('sdtLaiXe').value = data.sdtLaiXe || '';
+                    document.getElementById('lockNotice').style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi tải chương trình:', error);
+                document.getElementById('chuongTrinh').innerHTML = '<option value="">(Lỗi kết nối danh sách chương trình)</option>';
+            });
+    };
+
+    function saveData(event) {
+        event.preventDefault();
+        
+        const formData = {
+            chuongTrinh: document.getElementById('chuongTrinh').value,
+            soXe: document.getElementById('soXe').value,
+            tenHdv: document.getElementById('tenHdv').value,
+            sdtHdv: document.getElementById('sdtHdv').value,
+            bienSoXe: document.getElementById('bienSoXe').value,
+            laiXe: document.getElementById('laiXe').value,
+            sdtLaiXe: document.getElementById('sdtLaiXe').value,
+            soLuongGiaoVien: document.getElementById('soLuongGiaoVien').value,
+            
+            tenLop1: document.getElementById('tenLop1').value,
+            hsLop1: document.getElementById('hsLop1').value,
+            phLop1: document.getElementById('phLop1').value,
+            teLop1: document.getElementById('teLop1').value,
+
+            tenLop2: document.getElementById('tenLop2').value,
+            hsLop2: document.getElementById('hsLop2').value,
+            phLop2: document.getElementById('phLop2').value,
+            teLop2: document.getElementById('teLop2').value,
+
+            tenLop3: document.getElementById('tenLop3').value,
+            hsLop3: document.getElementById('hsLop3').value,
+            phLop3: document.getElementById('phLop3').value,
+            teLop3: document.getElementById('teLop3').value,
+        };
+
+        // Lưu cố định thông tin thiết bị
+        localStorage.setItem('tripData_fixedCar', JSON.stringify(formData));
+
+        // Gửi dữ liệu về Google Sheets
+        fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        }).then(() => {
+            alert('Đã gửi thông tin về hệ thống tổng hợp thành công!');
+        }).catch(error => {
+            console.error('Lỗi:', error);
+            alert('Có lỗi khi gửi dữ liệu, vui lòng kiểm tra lại kết nối mạng!');
+        });
+    }
+</script>
+
+</body>
+</html>
