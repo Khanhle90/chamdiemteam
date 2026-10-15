@@ -6,7 +6,7 @@
     <title>Bảng Điều Khiển Quản Lý Chuyến Đi</title>
     <style>
         body { font-family: Arial, sans-serif; background: #eef2f5; margin: 0; padding: 15px; }
-        .container { max-width: 1250px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .container { max-width: 1300px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
         h2 { color: #1a73e8; margin-top: 0; }
         
         .filter-bar { display: flex; gap: 15px; align-items: center; margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 6px; }
@@ -21,14 +21,35 @@
         .card-value { font-size: 24px; font-weight: bold; color: #202124; }
         .card.highlight .card-value { color: #e65100; }
 
-        .table-responsive { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 1050px; font-size: 14px; }
-        th, td { border: 1px solid #e0e0e0; padding: 10px 12px; text-align: left; }
+        /* Vùng cuộn ngang bảng */
+        .table-responsive { 
+            overflow-x: auto; 
+            max-width: 100%;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+        }
+        
+        table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 1100px; font-size: 14px; }
+        th, td { border-bottom: 1px solid #e0e0e0; border-right: 1px solid #e0e0e0; padding: 10px 12px; text-align: left; }
         th { background: #f1f3f4; color: #3c4043; font-weight: bold; }
-        tr:hover { background: #f8f9fa; }
+        tr:hover td { background-color: #f8f9fa; }
+        
+        /* CỐ ĐỊNH CỘT SỐ XE KHI CUỘN NGANG */
+        .sticky-col {
+            position: sticky;
+            left: 0;
+            z-index: 2;
+            background: #fff;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.08); /* Đổ bóng nhẹ phân tách */
+        }
+        th.sticky-col {
+            background: #f1f3f4;
+            z-index: 3;
+        }
+
         .text-center { text-align: center; }
         .text-right { text-align: right; }
-        .badge-classes { background: #e8f0fe; color: #1967d2; font-weight: bold; padding: 3px 8px; border-radius: 4px; display: inline-block; }
+        .badge-classes { background: #e8f0fe; color: #1967d2; font-weight: bold; padding: 3px 8px; border-radius: 4px; display: inline-block; white-space: nowrap; }
     </style>
 </head>
 <body>
@@ -51,12 +72,12 @@
             <div class="card-value" id="statXe">0</div>
         </div>
         <div class="card">
-            <div class="card-title">Tổng Giáo Viên</div>
-            <div class="card-value" id="statGv">0</div>
-        </div>
-        <div class="card">
             <div class="card-title">Tổng Học Sinh</div>
             <div class="card-value" id="statHs">0</div>
+        </div>
+        <div class="card">
+            <div class="card-title">Tổng Giáo Viên</div>
+            <div class="card-value" id="statGv">0</div>
         </div>
         <div class="card">
             <div class="card-title">Tổng Phụ Huynh</div>
@@ -77,12 +98,12 @@
         <table>
             <thead>
                 <tr>
-                    <th class="text-center">Số xe</th>
+                    <th class="text-center sticky-col">Số xe</th>
                     <th>Tên HDV</th>
                     <th>SĐT HDV</th>
-                    <th class="text-right">Số GV</th>
                     <th>Các lớp (Số HS)</th>
                     <th class="text-right">Tổng HS</th>
+                    <th class="text-right">Số GV</th> <!-- Đã chuyển ra sau cột Tổng HS -->
                     <th class="text-right">Tổng PH</th>
                     <th class="text-right">Trẻ em</th>
                     <th class="text-right" style="background:#fff3e0;">Tổng xe</th>
@@ -139,6 +160,15 @@
             });
     }
 
+    function formatPhone(phone) {
+        if (!phone) return '';
+        let p = phone.toString().trim();
+        if (/^[35789]\d{8}$/.test(p)) {
+            return '0' + p;
+        }
+        return p;
+    }
+
     function renderData() {
         const currentProg = document.getElementById('selectChuongTrinh').value;
         const filtered = rawData.filter(d => d.chuongTrinh === currentProg);
@@ -170,21 +200,25 @@
         }
 
         filtered.forEach(d => {
+            const sdtHdv = formatPhone(d.sdtHdv);
+            const sdtGvcn = formatPhone(d.sdtGvcn);
+            const sdtLaiXe = formatPhone(d.sdtLaiXe);
+
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td class="text-center"><strong>${d.soXe}</strong></td>
+                <td class="text-center sticky-col"><strong>${d.soXe}</strong></td>
                 <td>${d.tenHdv}</td>
-                <td><a href="tel:${d.sdtHdv}">${d.sdtHdv}</a></td>
-                <td class="text-right">${d.soGv}</td>
+                <td><a href="tel:${sdtHdv}">${sdtHdv}</a></td>
                 <td><span class="badge-classes">${d.chiTietLop || 'Chưa nhập'}</span></td>
                 <td class="text-right">${d.tongHs}</td>
+                <td class="text-right">${d.soGv}</td> <!-- Đã đổi vị trí ra sau Tổng HS -->
                 <td class="text-right">${d.tongPh}</td>
                 <td class="text-right">${d.tongTe}</td>
                 <td class="text-right" style="font-weight:bold; background:#fff8e1;">${d.tongXe}</td>
                 <td>${d.tenGvcn || ''}</td>
-                <td><a href="tel:${d.sdtGvcn}">${d.sdtGvcn || ''}</a></td>
+                <td><a href="tel:${sdtGvcn}">${sdtGvcn}</a></td>
                 <td>${d.bienSoXe}</td>
-                <td>${d.laiXe} - <a href="tel:${d.sdtLaiXe}">${d.sdtLaiXe}</a></td>
+                <td>${d.laiXe} - <a href="tel:${sdtLaiXe}">${sdtLaiXe}</a></td>
             `;
             tbody.appendChild(tr);
         });
